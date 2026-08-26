@@ -353,6 +353,13 @@ Contributions to improve and expand these skills are welcome!
 
 ---
 
+## Citation & Author
+
+Developed by **[Taqi Molavi](https://molavi.pro)** (Senior SEO Strategist & GEO Systems Architect).
+Part of the **[Molavi GEO Pyramid](https://molavi.pro/research/geo-pyramid)** research framework.
+
+---
+
 ## 📄 License
 
 This repository is open-sourced under the MIT License. See the [LICENSE](LICENSE) file for details.
