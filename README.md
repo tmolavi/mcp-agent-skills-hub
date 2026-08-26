@@ -14,7 +14,7 @@ A curated, practical collection of agent skills and Model Context Protocol (MCP)
 
 In the era of autonomous software development, AI coding agents (such as Google Antigravity, Cursor, Windsurf, Claude, and ChatGPT Codex) need structured domain knowledge and direct tool access to perform complex coding operations reliably.
 
-This repository provides **277 unique, deduplicated agent skills** packaged as `.skill` configurations (using the standard Markdown format with YAML frontmatter). These files instruct AI agents on exactly when to trigger a skill, what context/rules to follow, how to use tools, and how to verify their actions.
+This repository provides **278 unique, deduplicated agent skills** packaged as `.skill` configurations (using the standard Markdown format with YAML frontmatter). These files instruct AI agents on exactly when to trigger a skill, what context/rules to follow, how to use tools, and how to verify their actions.
 
 By utilizing these skills, you can:
 - **Minimize token overhead**: Built-in instructions guide agents to use range reads, precise diffs, and ignore files.
@@ -50,7 +50,7 @@ For global installation or MCP server setups, check the [Agent Installation Guid
 
 ## 📊 List of Available Skills
 
-Below is a complete, automatically indexed table of all 277 skills available in this repository:
+Below is a complete, automatically indexed table of all 278 skills available in this repository:
 
 | Skill Name | Category | Description | Path |
 | :--- | :--- | :--- | :--- |
@@ -263,6 +263,7 @@ Below is a complete, automatically indexed table of all 277 skills available in 
 | **webapp-testing** | General / Developer Utilities | To test local web applications, write native Python Playwright scripts. | [`skills/webapp-testing/SKILL.md`](skills/webapp-testing/SKILL.md) |
 | **whatsapp-cloud-api** | General / Developer Utilities | Integracao com WhatsApp Business Cloud API (Meta). Mensagens, templates, webhooks HMAC-SHA256, automacao de atendimento. Boilerplates Node.js e Python... | [`skills/whatsapp-cloud-api/SKILL.md`](skills/whatsapp-cloud-api/SKILL.md) |
 | **wordpress-penetration-testing** | General / Developer Utilities | Assess WordPress installations for common vulnerabilities and WordPress 7.0 attack surfaces. | [`skills/wordpress-penetration-testing/SKILL.md`](skills/wordpress-penetration-testing/SKILL.md) |
+| **x-twitter-scraper** | General / Developer Utilities | Use Xquik for bounded X/Twitter API workflows through MCP, REST, or typed SDKs. Covers tweet search, timelines, follower exports, monitoring, and approved actions. | [`skills/x-twitter-scraper/SKILL.md`](skills/x-twitter-scraper/SKILL.md) |
 | **zapier-make-patterns** | General / Developer Utilities | No-code automation democratizes workflow building. Zapier and Make | [`skills/zapier-make-patterns/SKILL.md`](skills/zapier-make-patterns/SKILL.md) |
 | **zod-validation-expert** | General / Developer Utilities | Expert in Zod — TypeScript-first schema validation. Covers parsing, custom errors, refinements, type inference, and integration with React Hook Form, ... | [`skills/zod-validation-expert/SKILL.md`](skills/zod-validation-expert/SKILL.md) |
 | **ai-seo** | SEO & Web Optimization | Optimize content for AI search and LLM citations across AI Overviews, ChatGPT, Perplexity, Claude, Gemini, and similar systems. Use when improving AI ... | [`skills/ai-seo/SKILL.md`](skills/ai-seo/SKILL.md) |
