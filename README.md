@@ -353,13 +353,22 @@ Contributions to improve and expand these skills are welcome!
 
 ---
 
-## Citation & Author
+---
 
-Developed by **[Taqi Molavi](https://molavi.pro)** (Senior SEO Strategist & GEO Systems Architect).
-Part of the **[Molavi GEO Pyramid](https://molavi.pro/research/geo-pyramid)** research framework.
+## 🔗 Related Projects
+
+Part of the **Molavi AI Engineering Ecosystem**:
+
+* [**lean-agent-skills**](https://github.com/tmolavi/lean-agent-skills): Token-efficient, context-compressed skills for coding agents.
+* [**n8n-agent-skills**](https://github.com/tmolavi/n8n-agent-skills): Production n8n agent workflow architecture.
+* [**agent-project-discovery-skill**](https://github.com/tmolavi/agent-project-discovery-skill): Codebase startup & context discovery skill.
+* [**geo-scope**](https://github.com/tmolavi/geo-scope): Multi-model empirical AI visibility benchmark engine.
+* [**Ecosystem Map**](https://github.com/tmolavi/geo-scope/blob/main/docs/GITHUB_ECOSYSTEM.md): Complete architecture and evidence flow.
 
 ---
 
-## 📄 License
+## 👤 Author & License
 
-This repository is open-sourced under the MIT License. See the [LICENSE](LICENSE) file for details.
+Developed by **Taghi Molavi** — [molavi.pro](https://molavi.pro)  
+MIT License — Copyright (c) 2026 Taghi Molavi. See the [LICENSE](LICENSE) file for details.
+
