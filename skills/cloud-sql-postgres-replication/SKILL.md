@@ -1,8 +1,7 @@
 ---
 name: cloud-sql-postgres-replication
-description: Use these skills when you need to monitor replication health, manage
-  sync states between nodes, and audit database roles and security settings to ensure
-  environment integrity.
+description: Use these skills when you need to monitor Google Cloud SQL PostgreSQL read replica health,
+  track replication lag, manage sync states, and audit replica failover readiness.
 license: Apache-2.0
 metadata:
   version: v1

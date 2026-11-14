@@ -1,8 +1,7 @@
 ---
 name: cloud-sql-postgres-view-config
-description: Use these skills when you need to discover and manage PostgreSQL extensions
-  or fine-tune engine-level settings such as memory allocation and server configuration
-  parameters.
+description: Use these skills when you need to inspect Cloud SQL PostgreSQL server configuration flags,
+  manage database flags, and inspect system parameter allocations.
 license: Apache-2.0
 metadata:
   version: v1

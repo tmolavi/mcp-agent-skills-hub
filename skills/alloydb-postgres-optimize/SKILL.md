@@ -1,8 +1,7 @@
 ---
 name: alloydb-postgres-optimize
-description: Use these skills when you need to discover and manage PostgreSQL extensions
-  or fine-tune engine-level settings such as memory allocation and server configuration
-  parameters.
+description: Use these skills when you need to discover and manage AlloyDB PostgreSQL extensions,
+  configure columnar engine flags, and optimize AlloyDB cluster memory allocation and settings.
 license: Apache-2.0
 metadata:
   version: v1
