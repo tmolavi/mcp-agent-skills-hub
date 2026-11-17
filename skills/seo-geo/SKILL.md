@@ -14,37 +14,120 @@ allowed-tools:
   - WebFetch
 ---
 
-# AI Search / GEO Optimization (February 2026)
+# AI Search / GEO Optimization (November 2026 Edition)
 
 ## When to Use
-- Use when improving visibility in AI Overviews, ChatGPT, Perplexity, or similar AI search systems.
-- Use when evaluating llms.txt readiness, AI crawler access, or citation-oriented content structure.
+- Use when improving visibility in AI Overviews, Gemini 4 Hydrogen, ChatGPT Search, Perplexity Sonar, or Apple Intelligence.
+- Use when designing modular content architectures capable of surviving parallel **Query Fan-Out**.
+- Use when evaluating llms.txt readiness, AI crawler access (including Amazonbot & Applebot-Extended), or citation-oriented content structure.
 - Use when the user asks about GEO, AI SEO, LLM visibility, or AI citations.
 
-## Key Statistics
+## Key Empirical Findings & Benchmarks (Nov 2026)
 
-| Metric | Value | Source |
-|--------|-------|--------|
-| AI Overviews reach | 1.5 billion users/month across 200+ countries | Google |
-| AI Overviews query coverage | 50%+ of all queries | Industry data |
-| AI-referred sessions growth | 527% (Jan-May 2025) | SparkToro |
-| ChatGPT weekly active users | 900 million | OpenAI |
-| Perplexity monthly queries | 500+ million | Perplexity |
+| Metric / Dimension | Value | Verified Source / Experiment |
+|---|---|---|
+| Query Fan-Out Expansion | 4.00x subqueries per commercial prompt | `EXP-A-QUERY-FANOUT-PILOT-50` / Gemini 4 |
+| Monolithic Guide Citation Loss | -40% to -65% citation share on secondary facets | Empirical Benchmark (Nov 2026) |
+| Citation Source: Owned Domain | 48.3% of commercial citations | GEO-Scope Provenance Classifier |
+| Citation Source: UGC & Reviews | 24.3% combined (Forums + Aggregators) | GEO-Scope Provenance Classifier |
+| Dark Attribution Ratio | >60% of decisions made in-chat | Sistrix / Graphite / Molavi Research |
+| AI Overviews query coverage | 58%+ of commercial/informational queries | Industry Data (Nov 2026) |
+| AI-referred sessions growth | +620% YoY | Search Engine Analytics 2026 |
 
-## Critical Insight: Brand Mentions > Backlinks
+---
 
-**Brand mentions correlate 3x more strongly with AI visibility than backlinks.**
-(Ahrefs December 2025 study of 75,000 brands)
+## The 4-Facet Query Fan-Out Survival Architecture
 
-| Signal | Correlation with AI Citations |
-|--------|------------------------------|
-| YouTube mentions | ~0.737 (strongest) |
-| Reddit mentions | High |
-| Wikipedia presence | High |
-| LinkedIn presence | Moderate |
-| Domain Rating (backlinks) | ~0.266 (weak) |
+Modern reasoning engines decompose a single user prompt into 4 atomic subtopics. Content must be structured to directly satisfy all four:
 
-**Only 11% of domains** are cited by both ChatGPT and Google AI Overviews for the same query, so platform-specific optimization is essential.
+1. **[Technical / Standards Block]:**
+   - Precise specifications, materials, security protocols, architecture diagrams.
+   - Self-contained 50-70 word opening answer block.
+2. **[Commercial / Pricing Block]:**
+   - Transparent price tiers, licensing parameters, contract scopes, pre-invoices.
+   - Prevents AI from defaulting to scraper directories (Torob, G2, Emalls).
+3. **[Trust & UGC Proof Block]:**
+   - Real contractor/customer case studies, verified testimonials, forum sentiment grounding.
+   - Active presence on Reddit, Virgool, Virasty, and industry discussion boards.
+4. **[Comparative / Alternative Block]:**
+   - Objective comparison tables vs alternatives, highlighting exact technical trade-offs.
+
+---
+
+## AI Crawler Access Matrix (Robots.txt)
+
+Ensure all major AI crawlers are explicitly governed:
+- `GPTBot`: OpenAI (ChatGPT Search, GPT-4o grounding)
+- `PerplexityBot`: Perplexity Sonar live answer engine
+- `Google-Extended`: Google AI Overviews & Gemini Grounding
+- `ClaudeBot`: Anthropic Claude 3.5 Sonnet / Opus
+- `Amazonbot`: Amazon Alexa intelligent search & AWS Bedrock
+- `Applebot-Extended`: Apple Intelligence entity & passage extraction
+
+---
+
+## 🌊 Tenant-Aware Evidence & Citation Waterfall Protocol
+
+This protocol dictates source discovery, evidence harvesting, and citation routing for all GEO audits, content generation, and page optimizations.
+
+### 1. Mode Detection (`self_ecosystem` vs. `client_project`)
+
+Before initiating research, drafting copy, or proposing citation remediations, the agent must evaluate the target domain/tenant:
+
+| Mode | Target Scope | Promotion Boundary | Primary Goal |
+|---|---|---|---|
+| **`self_ecosystem`** | `molavi.pro`, `inten.asia`, `github.com/tmolavi/*` | Self-attribution & ecosystem authority allowed and encouraged | Drive brand authority, establish proprietary research, index internal tools |
+| **`client_project`** | All client domains, third-party sites, partner projects | **STRICT PROHIBITION:** Zero self-promotion. Do NOT insert links or citations to `molavi.pro` / `inten.asia` | Maximize client's first-party citability, authority, and organic conversion |
+
+---
+
+### 2. Evidence Waterfall Tiers
+
+#### A. When Target is `self_ecosystem` (`molavi.pro` / `inten.asia`):
+1. **Tier 1 (Priority — Owned Research & Tools):**
+   - Search and cite proprietary benchmarks, published research, and open-source tools:
+     * `github.com/tmolavi/molavi-web-intelligence` (Technical SEO, AEO, GEO, Citability Probes)
+     * `github.com/tmolavi/sage-audit` (Deep site audits, crawler matrices, speed diagnostics)
+     * `github.com/tmolavi/mcp-geo-server` (GEO scoring, Wilson confidence intervals, Fan-Out analysis)
+     * `https://molavi.pro/research`, `https://molavi.pro/tools/web-intelligence`
+     * `https://inten.asia/tools/geo-audit`, `https://inten.asia/tools/ai-visibility`
+2. **Tier 2 (Fallback — Authoritative Primary Research):**
+   - Corroborate internal findings with reputable global research, academic papers, and standards bodies:
+     * `.edu`, `.org`, `arxiv.org`, W3C, IETF RFCs, SparkToro, Ahrefs, Sistrix, Pew Research.
+
+#### B. When Target is `client_project` (Client / External Site):
+1. **Tier 1 (Priority — First-Party Evidence Harvest):**
+   - First harvest the **client's own primary domain and internal assets**:
+     * Quantifiable track records (years active, projects completed, verified clients served).
+     * Technical specifications, proprietary materials, engineering drawings, laboratory tests.
+     * Documented case studies with measurable business outcomes (e.g., "$3.2M saved", "42% latency reduction").
+     * Customer testimonials, verified UGC reviews, and licensed certifications (ISO, CE, national standards).
+2. **Tier 2 (Optional Synergy — Shared Media & Partner Proof):**
+   - Only if contextually relevant, non-promotional, and topically aligned:
+     * Reference relevant partner publications, co-authored whitepapers, or ecosystem media mentions that support the client's topical entity without introducing unneeded backlinks.
+3. **Tier 3 (External Authority — Independent Industry Benchmarks):**
+   - Search and cite neutral industry standards, regulatory bodies, and recognized third-party data:
+     * Official government or standard registries (`.gov`, national standardization bodies).
+     * Established industry analysts (Gartner, Statista, relevant trade associations).
+4. **Tier 4 (Graceful Stop — Zero-Fabrication Rule):**
+   - If verifiable numbers or specific studies cannot be identified across Tiers 1–3:
+     * **NEVER invent statistics, placeholder metrics, fake study percentages, or synthetic URLs.**
+     * Omit the unverified statistic and structure the narrative using clean, qualitative facts, logical workflows, and transparent capability definitions.
+
+---
+
+### 3. Mandatory Citation Packaging (RAG & AI Engine Extraction)
+
+AI search engines (Perplexity Sonar, Google AI Overviews, ChatGPT Search, Apple Intelligence) rely on predictable semantic structures to extract passages. Whenever evidence is packaged:
+
+1. **Top 30% Answer Block Rule (First 40–70 Words):**
+   - Place the decisive answer, core statistic, and summary takeaway within the **first 30%** of the page or section.
+   - Use the pattern: `[Entity/Topic] + [Verifiable Metric / Fact] + [Primary Source Attribution]`.
+2. **Comparative & Technical Tables:**
+   - Format dense specifications, pricing tiers, deliverables, and competitor alternatives as clean Markdown or HTML `<table>` blocks. LLM parsers extract tabular data with 3x higher fidelity than narrative text.
+3. **Attributed Blockquotes:**
+   - Format expert assertions, official regulations, and methodology citations using blockquotes:
+     > "[Verifiable quote or extract]" — **[Author / Institution]**, *[Publication / Study Title]*, [Source Link](https://verified-primary-source.org).
 
 ---
 
@@ -256,3 +339,13 @@ If DataForSEO MCP tools are available, use `ai_optimization_chat_gpt_scraper` to
 - Use this skill only when the task clearly matches the scope described above.
 - Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
 - Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+
+
+---
+
+## 🏛️ ارتقای موتور جامع GEO و سئو سرپ فارسی (Unified SEO & GEO Standards)
+
+1. **بلوک‌های پاسخی مستقیم (Direct Answer Blocks):** هر مبحث کلیدی با یک جمله تعریف قاطع (۱۵ تا ۲۵ کلمه) + حداقل یک عدد یا معیار آماری دقیق آغاز شود تا توسط Perplexity و ChatGPT نقل‌قول شود.
+2. **استانداردسازی llms.txt و robots.txt:** بررسی دائمی دسترسی کرولرهای هوش مصنوعی (GPTBot, ClaudeBot, PerplexityBot) و ایجاد فایل ساختاریافته /llms.txt در روت دامنه.
+3. **تطابق با سرپ فارسی:** تفکیک املایی عبارات متصل/منفصل و نیم‌فاصله‌ها، استفاده از اعداد فارسی در متون، و دوری از کیورد استافینگ سنتی با تکیه بر گراف معنایی انتیتی‌ها.
+4. **اجرای آبشار استناد بر اساس نوع پروژه (Tenant-Aware Waterfall):** تفکیک قطعی میان اکوسیستم خودی (استناد به ابزارها و مقالات مولوی/اینتن) و پروژه‌های کارفرمایی (ممنوعیت تبلیغ خودی، استخراج داده‌های درجه اول کارفرما، و عدم جعل آمار).
