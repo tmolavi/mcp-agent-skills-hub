@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{SYSTEM_TITLE}} — Neural HUD Telemetry</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg-base: #060608;
+      --panel-bg: #0d0e12;
+      --panel-border: rgba(255, 42, 60, 0.25);
+      --panel-glow: rgba(255, 42, 60, 0.12);
+      --accent-crimson: #ff2a3c;
+      --accent-amber: #ff5533;
+      --accent-gold: #ffaa33;
+      --accent-cyan: #00f0ff;
+      --accent-green: #00ff88;
+      --text-main: #f0f3f8;
+      --text-muted: #7d8597;
+      --font-mono: ui-monospace, 'DejaVu Sans Mono', 'Courier New', monospace;
+    }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      user-select: none;
+    }
+    /* CRT Scanline & Grain overlay */
+    body::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      z-index: 100;
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    /* Grid background */
+    .bg-grid {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        radial-gradient(circle at 50% 35%, rgba(255, 42, 60, 0.08) 0%, transparent 65%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Outer wrapper */
+    .hud-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Top Navigation / Header */
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-left: 4px solid var(--accent-crimson);
+      box-shadow: 0 0 15px var(--panel-glow);
+      border-radius: 4px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge-pulse {
+      width: 10px;
+      height: 10px;
+      background-color: var(--accent-crimson);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-crimson);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    .repo-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .repo-title span.tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: rgba(255, 42, 60, 0.15);
+      border: 1px solid var(--accent-crimson);
+      color: var(--accent-crimson);
+      border-radius: 2px;
+      text-transform: uppercase;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .metric-chip {
+      display: flex;
+      gap: 6px;
+    }
+    .metric-chip strong {
+      color: var(--accent-amber);
+    }
+
+    /* Centerpiece Canvas & Matrix */
+    .center-stage {
+      flex: 1;
+      display: flex;
+      gap: 12px;
+      min-height: 0;
+      position: relative;
+    }
+    .canvas-card {
+      flex: 1.4;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    }
+    #particleCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    /* Corner HUD brackets */
+    .corner-bracket {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: var(--accent-crimson);
+      pointer-events: none;
+    }
+    .cb-tl { top: 6px; left: 6px; border-top: 2px solid; border-left: 2px solid; }
+    .cb-tr { top: 6px; right: 6px; border-top: 2px solid; border-right: 2px solid; }
+    .cb-bl { bottom: 6px; left: 6px; border-bottom: 2px solid; border-left: 2px solid; }
+    .cb-br { bottom: 6px; right: 6px; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* Inset Holographic Subsystem Box */
+    .isolate-inset {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 190px;
+      background: rgba(13, 14, 18, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--accent-amber);
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 10px;
+      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    }
+    .isolate-inset .inset-header {
+      color: var(--accent-amber);
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed rgba(255, 85, 51, 0.4);
+      padding-bottom: 4px;
+    }
+    .radar-sweep-box {
+      width: 100%;
+      height: 48px;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 6px;
+      overflow: hidden;
+      background: #030406;
+    }
+    #radarCanvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Right/Flanking Module Cards */
+    .module-stack {
+      flex: 0.9;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mod-card {
+      flex: 1;
+      background: var(--panel-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .mod-card.active-card {
+      border-color: var(--accent-crimson);
+      background: linear-gradient(135deg, rgba(255, 42, 60, 0.06), var(--panel-bg) 60%);
+    }
+    .mod-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .mod-card-header .mod-code {
+      color: var(--accent-amber);
+      font-size: 9px;
+      background: rgba(255, 85, 51, 0.12);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+    .mod-meter {
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .mod-meter-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-crimson), var(--accent-amber));
+      width: 65%;
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent-crimson);
+      transition: width 0.1s linear;
+    }
+    .mod-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .mod-stats strong {
+      color: var(--accent-cyan);
+    }
+
+    /* Bottom Telemetry Strip (3 Columns) */
+    .bottom-strip {
+      height: 190px;
+      display: flex;
+      gap: 12px;
+    }
+    .strip-col {
+      flex: 1;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .col-header {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-crimson);
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .col-header span.tag {
+      font-size: 8px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Strip Col 1: Terminal Logs & Sparkline */
+    .log-stream {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 9.5px;
+      line-height: 1.5;
+      color: #b5bdd0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 3px;
+    }
+    .log-line {
+      display: flex;
+      gap: 6px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .log-time { color: var(--accent-amber); opacity: 0.8; }
+    .log-level { color: var(--accent-cyan); }
+    .log-msg { color: #f0f3f8; }
+    .sparkline-box {
+      height: 38px;
+      width: 100%;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.3);
+    }
+    #sparklineCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Strip Col 2: Thread & Trace Metrics */
+    .metrics-grid {
+      flex: 1;
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      align-content: center;
+    }
+    .metric-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .m-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .m-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .m-val small {
+      font-size: 9px;
+      color: var(--accent-amber);
+      font-weight: 400;
+    }
+
+    /* Strip Col 3: Live Diff / Output */
+    .diff-box {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 9px;
+      line-height: 1.45;
+      overflow: hidden;
+      background: #08090d;
+      color: #93a1a1;
+      position: relative;
+    }
+    .diff-line {
+      white-space: pre;
+      font-family: var(--font-mono);
+    }
+    .diff-add { color: var(--accent-green); background: rgba(0, 255, 136, 0.08); }
+    .diff-del { color: var(--accent-crimson); background: rgba(255, 42, 60, 0.08); }
+    .diff-hdr { color: var(--accent-cyan); }
+    .diff-cursor {
+      display: inline-block;
+      width: 6px;
+      height: 11px;
+      background: var(--accent-crimson);
+      vertical-align: middle;
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+    /* Vertical Aspect 9:16 layout adjustments */
+    body.aspect-9-16 .hud-container {
+      padding: 12px;
+      gap: 10px;
+    }
+    body.aspect-9-16 .center-stage {
+      flex-direction: column;
+      flex: 1.5;
+    }
+    body.aspect-9-16 .canvas-card {
+      flex: 1.8;
+      min-height: 280px;
+    }
+    body.aspect-9-16 .module-stack {
+      flex: 1;
+      flex-direction: row;
+      gap: 8px;
+    }
+    body.aspect-9-16 .mod-card {
+      padding: 8px 10px;
+    }
+    body.aspect-9-16 .bottom-strip {
+      flex-direction: column;
+      height: auto;
+      flex: 1.8;
+      gap: 8px;
+    }
+    body.aspect-9-16 .strip-col {
+      min-height: 105px;
+    }
+    body.aspect-9-16 .sparkline-box {
+      height: 24px;
+    }
+  </style>
+</head>
+<body id="hudBody">
+  <div class="bg-grid"></div>
+  <div class="hud-container">
+    <!-- Top Header Bar -->
+    <header class="hud-header">
+      <div class="header-left">
+        <div class="badge-pulse"></div>
+        <div class="repo-title">
+          {{REPO_NAME}}
+          <span class="tag">{{STATUS_TAG}}</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="metric-chip">FPS: <strong id="valFps">60.0</strong></div>
+        <div class="metric-chip">MEM: <strong id="valMem">184MB</strong></div>
+        <div class="metric-chip">NODE: <strong id="valSec">TLS-v1.3</strong></div>
+        <div class="metric-chip">UTC: <strong id="valUtc">00:00:00.00</strong></div>
+      </div>
+    </header>
+
+    <!-- Center Stage: 3D Neural Particles & Module Cards -->
+    <main class="center-stage">
+      <section class="canvas-card">
+        <div class="corner-bracket cb-tl"></div>
+        <div class="corner-bracket cb-tr"></div>
+        <div class="corner-bracket cb-bl"></div>
+        <div class="corner-bracket cb-br"></div>
+        
+        <canvas id="particleCanvas"></canvas>
+
+        <!-- Inset Subsystem Window -->
+        <div class="isolate-inset">
+          <div class="inset-header">
+            <span>ISOLATE: NODE_ALPHA</span>
+            <span id="insetStatus">[LOCKED]</span>
+          </div>
+          <div class="radar-sweep-box">
+            <canvas id="radarCanvas"></canvas>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:8.5px;">
+            <span>VECTOR SYNC: <strong id="valVec" style="color:var(--accent-cyan);">99.4%</strong></span>
+            <span>Q-GATE: <strong id="valGate" style="color:var(--accent-amber);">ACTV</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="module-stack">
+        <div class="mod-card active-card" id="modCard1">
+          <div class="mod-card-header">
+            <span>{{MODULE_1_TITLE}}</span>
+            <span class="mod-code">MOD_01</span>
+          </div>
+          <div class="mod-meter">
+            <div class="mod-meter-bar" id="modBar1" style="width: 78%;"></div>
+          </div>
+          <div class="mod-stats">
+            <span>THROUGHPUT: <strong id="modStat1">2,410 ops/s</strong></span>
+            <span>STATE: <strong style="color:var(--accent-green);">HEALTHY</strong></span>
+          </div>
+        </div>
+
+        <div class="mod-card" id="modCard2">
+          <div class="mod-card-header">
+            <span>{{MODULE_2_TITLE}}</span>
+            <span class="mod-code">MOD_02</span>
+          </div>
+          <div class="mod-meter">
+            <div class="mod-meter-bar" id="modBar2" style="width: 62%;"></div>
+          </div>
+          <div class="mod-stats">
+            <span>LATENCY P99: <strong id="modStat2">14.2ms</strong></span>
+            <span>DRAIN: <strong style="color:var(--accent-amber);">NORMAL</strong></span>
+          </div>
+        </div>
+
+        <div class="mod-card" id="modCard3">
+          <div class="mod-card-header">
+            <span>{{MODULE_3_TITLE}}</span>
+            <span class="mod-code">MOD_03</span>
+          </div>
+          <div class="mod-meter">
+            <div class="mod-meter-bar" id="modBar3" style="width: 91%;"></div>
+          </div>
+          <div class="mod-stats">
+            <span>SAFETY SENTINEL: <strong id="modStat3">0 DRIFT</strong></span>
+            <span>ENFORCED: <strong style="color:var(--accent-green);">STRICT</strong></span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Telemetry Strip (3 Columns) -->
+    <footer class="bottom-strip">
+      <!-- Col 1: Terminal Logs & Throughput Sparkline -->
+      <div class="strip-col">
+        <div class="col-header">
+          <span>ROUTING / LOGS</span>
+          <span class="tag">REALTIME_STREAM</span>
+        </div>
+        <div class="log-stream" id="logContainer">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="sparkline-box">
+          <canvas id="sparklineCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Col 2: Thread & Trace Metrics -->
+      <div class="strip-col">
+        <div class="col-header">
+          <span>THREAD / TRACE</span>
+          <span class="tag">DETERMINISTIC_TELEMETRY</span>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-row">
+            <span class="m-label">Avg Latency</span>
+            <span class="m-val"><span id="mAvgLat">11.8</span><small>ms</small></span>
+          </div>
+          <div class="metric-row">
+            <span class="m-label">Token / Flow Rate</span>
+            <span class="m-val"><span id="mTokRate">4,120</span><small>tps</small></span>
+          </div>
+          <div class="metric-row">
+            <span class="m-label">Cache Hit Ratio</span>
+            <span class="m-val"><span id="mCacheHit">94.8</span><small>%</small></span>
+          </div>
+          <div class="metric-row">
+            <span class="m-label">Inference Gate</span>
+            <span class="m-val"><span id="mGateVal">0.998</span><small>q-score</small></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: Live AST Diff / Output -->
+      <div class="strip-col">
+        <div class="col-header">
+          <span>LIVE DIFF / OUTPUT</span>
+          <span class="tag">CODE_RESONANCE</span>
+        </div>
+        <div class="diff-box" id="diffContainer">
+          <div class="diff-line diff-hdr">@@ -42,7 +42,9 @@ export class {{REPO_SLUG}}Router {</div>
+          <div class="diff-line">   const ctx = await resolver.acquire();</div>
+          <div class="diff-line diff-del">-  return legacyDispatch(ctx);</div>
+          <div class="diff-line diff-add">+  const telemetry = telemetryStream.mount(ctx);</div>
+          <div class="diff-line diff-add">+  return neuralHud.render({ pipeline: ctx, t: now });</div>
+          <div class="diff-line"> }<span class="diff-cursor"></span></div>
+        </div>
+      </footer>
+  </div>
+
+  <script>
+    // --- HUD Configuration & Data Ingestion ---
+    const CONFIG = {
+      aspect: "{{ASPECT_RATIO}}", // "9:16" or "16:9"
+      duration: parseFloat("{{DURATION}}") || 24.0,
+      logs: {{LOGS_JSON}},
+      metrics: {{METRICS_JSON}}
+    };
+
+    // Apply aspect ratio class if needed
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('aspect') === '9:16' || CONFIG.aspect === '9:16') {
+      document.body.classList.add('aspect-9-16');
+    }
+
+    // --- Deterministic 3D Neural Particles System ---
+    const pCanvas = document.getElementById('particleCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    const rCanvas = document.getElementById('radarCanvas');
+    const rCtx = rCanvas.getContext('2d');
+    const sCanvas = document.getElementById('sparklineCanvas');
+    const sCtx = sCanvas.getContext('2d');
+
+    // Particle nodes in 3D sphere
+    const NUM_NODES = 120;
+    const SPHERE_RADIUS = 160;
+    const nodes = [];
+
+    // Fibonacci sphere distribution for uniform nodes
+    const phi = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < NUM_NODES; i++) {
+      const y = 1 - (i / (NUM_NODES - 1)) * 2;
+      const radius = Math.sqrt(1 - y * y);
+      const theta = phi * i;
+      const x = Math.cos(theta) * radius;
+      const z = Math.sin(theta) * radius;
+      nodes.push({
+        x: x * SPHERE_RADIUS,
+        y: y * SPHERE_RADIUS,
+        z: z * SPHERE_RADIUS,
+        baseX: x * SPHERE_RADIUS,
+        baseY: y * SPHERE_RADIUS,
+        baseZ: z * SPHERE_RADIUS,
+        orbitSpeed: 0.5 + (i % 5) * 0.15
+      });
+    }
+
+    function resizeCanvases() {
+      const pRect = pCanvas.getBoundingClientRect();
+      pCanvas.width = pRect.width * (window.devicePixelRatio || 1);
+      pCanvas.height = pRect.height * (window.devicePixelRatio || 1);
+      pCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+      const rRect = rCanvas.getBoundingClientRect();
+      rCanvas.width = rRect.width * (window.devicePixelRatio || 1);
+      rCanvas.height = rRect.height * (window.devicePixelRatio || 1);
+      rCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+      const sRect = sCanvas.getBoundingClientRect();
+      sCanvas.width = sRect.width * (window.devicePixelRatio || 1);
+      sCanvas.height = sRect.height * (window.devicePixelRatio || 1);
+      sCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+    window.addEventListener('resize', resizeCanvases);
+    resizeCanvases();
+
+    // --- Deterministic Seek Function for Playwright Video Renderer ---
+    window.seekTo = function(t) {
+      renderHUD(t);
+    };
+
+    function renderHUD(t) {
+      const w = pCanvas.getBoundingClientRect().width;
+      const h = pCanvas.getBoundingClientRect().height;
+      pCtx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+
+      // 1. Central Energy Ring Glow
+      const pulse = 1 + 0.12 * Math.sin(t * 3.5);
+      const grad = pCtx.createRadialGradient(cx, cy, 10, cx, cy, 120 * pulse);
+      grad.addColorStop(0, 'rgba(255, 42, 60, 0.45)');
+      grad.addColorStop(0.4, 'rgba(255, 85, 51, 0.15)');
+      grad.addColorStop(1, 'rgba(255, 42, 60, 0)');
+      pCtx.fillStyle = grad;
+      pCtx.beginPath();
+      pCtx.arc(cx, cy, 120 * pulse, 0, Math.PI * 2);
+      pCtx.fill();
+
+      // Outer Holographic Target Rings
+      pCtx.save();
+      pCtx.translate(cx, cy);
+      pCtx.rotate(t * 0.4);
+      pCtx.strokeStyle = 'rgba(255, 85, 51, 0.35)';
+      pCtx.lineWidth = 1;
+      pCtx.setLineDash([8, 12]);
+      pCtx.beginPath();
+      pCtx.arc(0, 0, 140, 0, Math.PI * 2);
+      pCtx.stroke();
+      pCtx.restore();
+
+      // Counter-rotating ring
+      pCtx.save();
+      pCtx.translate(cx, cy);
+      pCtx.rotate(-t * 0.25);
+      pCtx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+      pCtx.setLineDash([4, 20]);
+      pCtx.beginPath();
+      pCtx.arc(0, 0, 165, 0, Math.PI * 2);
+      pCtx.stroke();
+      pCtx.restore();
+
+      // 2. 3D Particle Rotation
+      const rotY = t * 0.65;
+      const rotX = Math.sin(t * 0.4) * 0.4;
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+
+      const projected = [];
+      const fov = 340;
+
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        // Rotate around Y
+        let x1 = n.baseX * cosY - n.baseZ * sinY;
+        let z1 = n.baseZ * cosY + n.baseX * sinY;
+        // Rotate around X
+        let y2 = n.baseY * cosX - z1 * sinX;
+        let z2 = z1 * cosX + n.baseY * sinX;
+
+        // Camera distance
+        const cameraDist = 420;
+        const scale = fov / (cameraDist + z2);
+        const projX = cx + x1 * scale;
+        const projY = cy + y2 * scale;
+        projected.push({ x: projX, y: projY, z: z2, scale: scale, id: i });
+      }
+
+      // Sort by Z for proper alpha
+      projected.sort((a, b) => b.z - a.z);
+
+      // Draw Connections (Neural Mesh)
+      pCtx.lineWidth = 0.75;
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < Math.min(i + 7, projected.length); j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 55) {
+            const alpha = (1 - dist / 55) * 0.35;
+            pCtx.strokeStyle = `rgba(255, 70, 70, ${alpha})`;
+            pCtx.beginPath();
+            pCtx.moveTo(projected[i].x, projected[i].y);
+            pCtx.lineTo(projected[j].x, projected[j].y);
+            pCtx.stroke();
+          }
+        }
+      }
+
+      // Draw Projected Nodes
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        const alpha = Math.max(0.2, (p.z + 180) / 360);
+        const radius = Math.max(1.2, 2.8 * p.scale);
+
+        pCtx.fillStyle = (p.id % 7 === 0) ? `rgba(0, 240, 255, ${alpha})` : `rgba(255, 55, 65, ${alpha})`;
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        pCtx.fill();
+
+        // Key Node Callouts
+        if (p.id === 12 || p.id === 48 || p.id === 86) {
+          pCtx.strokeStyle = 'rgba(255, 170, 51, 0.7)';
+          pCtx.lineWidth = 1;
+          pCtx.beginPath();
+          pCtx.moveTo(p.x, p.y);
+          pCtx.lineTo(p.x + 35, p.y - 25);
+          pCtx.lineTo(p.x + 85, p.y - 25);
+          pCtx.stroke();
+
+          pCtx.fillStyle = '#ffaa33';
+          pCtx.font = '8px monospace';
+          const label = p.id === 12 ? 'CLUSTER_ALPHA: OK' : (p.id === 48 ? 'MCP_GATEWAY: SYNC' : 'QUANT_TRACE: ACTIVE');
+          pCtx.fillText(label, p.x + 38, p.y - 28);
+        }
+      }
+
+      // 3. Render Inset Radar Canvas
+      const rw = rCanvas.getBoundingClientRect().width;
+      const rh = rCanvas.getBoundingClientRect().height;
+      rCtx.clearRect(0, 0, rw, rh);
+      rCtx.strokeStyle = 'rgba(255, 85, 51, 0.4)';
+      rCtx.lineWidth = 1;
+      rCtx.beginPath();
+      rCtx.arc(rw / 2, rh / 2, rh * 0.4, 0, Math.PI * 2);
+      rCtx.stroke();
+      // Sweep line
+      const sweepAngle = t * 4.0;
+      rCtx.beginPath();
+      rCtx.moveTo(rw / 2, rh / 2);
+      rCtx.lineTo(rw / 2 + Math.cos(sweepAngle) * rh * 0.4, rh / 2 + Math.sin(sweepAngle) * rh * 0.4);
+      rCtx.strokeStyle = 'rgba(0, 240, 255, 0.8)';
+      rCtx.stroke();
+
+      // 4. Render Sparkline
+      const sw = sCanvas.getBoundingClientRect().width;
+      const sh = sCanvas.getBoundingClientRect().height;
+      sCtx.clearRect(0, 0, sw, sh);
+      sCtx.strokeStyle = '#ff5533';
+      sCtx.lineWidth = 1.5;
+      sCtx.beginPath();
+      for (let x = 0; x < sw; x += 4) {
+        const freq1 = Math.sin((x * 0.08) + (t * 5.0));
+        const freq2 = Math.cos((x * 0.03) - (t * 2.5));
+        const y = (sh / 2) + (freq1 * 8) + (freq2 * 5);
+        if (x === 0) sCtx.moveTo(x, y);
+        else sCtx.lineTo(x, y);
+      }
+      sCtx.stroke();
+
+      // 5. Update Clocks & Dynamic HUD Telemetry
+      const ms = Math.floor((t % 1) * 100);
+      const totalSec = Math.floor(t);
+      const sec = totalSec % 60;
+      const min = Math.floor(totalSec / 60);
+      document.getElementById('valUtc').innerText = 
+        `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}:${String(ms).padStart(2, '0')}`;
+      document.getElementById('valFps').innerText = (59.6 + 0.8 * Math.sin(t * 8)).toFixed(1);
+      document.getElementById('valMem').innerText = `${Math.floor(182 + 14 * Math.sin(t * 1.5))}MB`;
+
+      // 6. Update Module Bars & Stats
+      const bar1 = 65 + 25 * Math.sin(t * 1.8);
+      const bar2 = 50 + 35 * Math.cos(t * 1.4);
+      const bar3 = 80 + 15 * Math.sin(t * 0.9);
+      document.getElementById('modBar1').style.width = `${bar1}%`;
+      document.getElementById('modBar2').style.width = `${bar2}%`;
+      document.getElementById('modBar3').style.width = `${bar3}%`;
+      document.getElementById('modStat1').innerText = `${Math.floor(2200 + 400 * Math.sin(t * 2))} ops/s`;
+      document.getElementById('modStat2').innerText = `${(12.5 + 3.2 * Math.sin(t * 2.5)).toFixed(1)}ms`;
+
+      // 7. Update Thread & Trace Metrics
+      document.getElementById('mAvgLat').innerText = (10.8 + 2.4 * Math.sin(t * 2.2)).toFixed(1);
+      document.getElementById('mTokRate').innerText = `${Math.floor(3900 + 450 * Math.cos(t * 1.7))}`;
+      document.getElementById('mCacheHit').innerText = (93.5 + 2.5 * Math.cos(t * 0.8)).toFixed(1);
+      document.getElementById('mGateVal').innerText = (0.992 + 0.007 * Math.sin(t * 3)).toFixed(3);
+
+      // 8. Stream Logs deterministically according to t
+      renderLogs(t);
+    }
+
+    // Deterministic log stream
+    function renderLogs(t) {
+      const container = document.getElementById('logContainer');
+      const allLogs = CONFIG.logs || [
+        { level: "INIT", msg: "Telemetry daemon mounted to bus /dev/shm/hud0" },
+        { level: "INFO", msg: "Quantization matrix verified: fp16/bf16 dual pipeline" },
+        { level: "SYNC", msg: "Node cluster synchronized with 0 drift detected" },
+        { level: "GATE", msg: "P99 latency gate strictly locked under 15ms" },
+        { level: "STREAM", msg: "Neural visualizer streaming AST token resonance" }
+      ];
+
+      // Number of logs to show advances with time
+      const itemsToShow = 4;
+      const step = 2.5; // New log every 2.5 seconds
+      const startIndex = Math.floor(t / step) % allLogs.length;
+
+      let html = '';
+      for (let i = 0; i < itemsToShow; i++) {
+        const item = allLogs[(startIndex + i) % allLogs.length];
+        const logSec = (t - (itemsToShow - i) * 0.4).toFixed(2);
+        html += `
+          <div class="log-line">
+            <span class="log-time">[+${logSec}s]</span>
+            <span class="log-level">&lt;${item.level}&gt;</span>
+            <span class="log-msg">${item.msg}</span>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // --- Autostart Loop for Live Browser Testing ---
+    if (params.get('autostart') === '1') {
+      let startTs = null;
+      function loop(ts) {
+        if (!startTs) startTs = ts;
+        const elapsed = (ts - startTs) / 1000;
+        renderHUD(elapsed);
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    } else {
+      // Render frame 0 by default
+      renderHUD(0);
+    }
+  </script>
+</body>
+</html>
