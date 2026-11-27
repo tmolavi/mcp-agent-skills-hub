@@ -355,15 +355,20 @@ Contributions to improve and expand these skills are welcome!
 
 ---
 
-## 🔗 Related Projects
+## 🔗 Related Projects & Articles
 
 Part of the **Molavi AI Engineering Ecosystem**:
 
+* [**TM-Agentic-Forge**](https://github.com/tmolavi/TM-Agentic-Forge): Provider-independent agent engineering ecosystem (7-gate security vetting, skill forge, evaluation engine, and Antigravity / Hermes Core / Hermes Desktop adapters).
+* [**molavi-agentic-os**](https://github.com/tmolavi/molavi-agentic-os): Modular, model-agnostic AI agent operating framework (12 agents, 24 skills, TaskQueue, Permission-Slip).
+* [**tm-second-brain**](https://github.com/tmolavi/tm-second-brain): Local-first, `$0.00` persistent memory & MCP server.
 * [**lean-agent-skills**](https://github.com/tmolavi/lean-agent-skills): Token-efficient, context-compressed skills for coding agents.
 * [**n8n-agent-skills**](https://github.com/tmolavi/n8n-agent-skills): Production n8n agent workflow architecture.
 * [**agent-project-discovery-skill**](https://github.com/tmolavi/agent-project-discovery-skill): Codebase startup & context discovery skill.
 * [**geo-scope**](https://github.com/tmolavi/geo-scope): Multi-model empirical AI visibility benchmark engine.
 * [**Ecosystem Map**](https://github.com/tmolavi/geo-scope/blob/main/docs/GITHUB_ECOSYSTEM.md): Complete architecture and evidence flow.
+* **Molavi.pro Articles:** [Agent Skills Engineering Standards](https://molavi.pro/notes/agent-skills-engineering-standards-molavi-ecosystem) · [MCP Agent Skills Hub Curation](https://molavi.pro/notes/mcp-agent-skills-hub-curation) · [Lean Agent Skills & Context Efficiency](https://molavi.pro/notes/lean-agent-skills-context-efficiency)
+* **Inten:** [TM Second Brain Architecture Guide](https://inten.asia/blog/tm-second-brain-persistent-memory-en) · [Inten Digital Marketing](https://inten.asia/en)
 
 ---
 
