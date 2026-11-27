@@ -16,6 +16,7 @@ Use this skill when vetting external skills/plugins, enforcing least-privilege o
 2. **Never conflate Mac Local (`hermes-personal-desktop`) and Finland Linux (`hermes-core`).** Verify with `python3 -m tm_forge check-env --target <target>`.
 3. **Orchestrator Least Privilege:** Orchestrators (`is_orchestrator=True`) must emit `HandoffRequest` and must not hold `write`, `bash`, or `mcp_*` tools directly.
 4. **Memory Isolation:** Delegate persistent memory to `tm-second-brain` via `SecondBrainBridge` namespaces (`antigravity`, `main-hermes`, `desktop-hermes`).
+5. **User-First Content & Provocative Examples:** When writing READMEs, articles, or docs for `TM-Agentic-Forge` or any TM skill, always write for the **end user** (never internal self-talk) using vivid, provocative real-world failure examples (e.g., poisoned unpinned plugins, runaway orchestrators wiping configs, laptop-to-prod collisions) and authentic proverbs.
 
 ## Quick Commands
 ```bash
